@@ -294,6 +294,12 @@ subprojects {
 
     configurations.all {
         resolutionStrategy {
+            eachDependency { DependencyResolveDetails details ->
+                if (!project.publishReleases) return
+                if (details.requested.version.endsWith("-SNAPSHOT")) {
+                    throw new GradleException("${details.requested}: Must not have -SNAPSHOT dependencies in released versions!")
+                }
+            }
             if (!Boolean.getBoolean("skipVersionConflict")) {
                 failOnVersionConflict()
             }
