@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.ListFactoryBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,14 +29,16 @@ import java.util.Objects;
  * @author Misagh Moayyed
  * @since 6.1.0
  */
-@Configuration(value = "ldapPasswordSynchronizationConfiguration", proxyBeanMethods = true)
+@Configuration(value = "ldapPasswordSynchronizationConfiguration", proxyBeanMethods = false)
 @EnableConfigurationProperties(CasConfigurationProperties.class)
 public class LdapPasswordSynchronizationConfiguration {
     @Autowired
     private CasConfigurationProperties casProperties;
 
+
     @Bean
     @SneakyThrows
+    @ConditionalOnProperty(prefix = "cas.authn.password-sync", name = "enabled", havingValue = "true", matchIfMissing = true)
     public ListFactoryBean ldapPasswordSynchronizationAuthenticationPostProcessorListFactoryBean() {
         val bean = new ListFactoryBean() {
             @Override
@@ -49,6 +52,7 @@ public class LdapPasswordSynchronizationConfiguration {
         return bean;
     }
 
+    @ConditionalOnProperty(prefix = "cas.authn.password-sync", name = "enabled", havingValue = "true", matchIfMissing = true)
     @ConditionalOnMissingBean(name = "ldapPasswordSynchronizationAuthenticationEventExecutionPlanConfigurer")
     @Bean
     @Autowired
